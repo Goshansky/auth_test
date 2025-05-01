@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { addComment } from "./action";
+import {useRouter} from "next/navigation";
 
 type Props = {
     postId: string;
@@ -11,25 +12,27 @@ type Props = {
 export default function CommentForm({ postId, user }: Props) {
     const [message, setMessage] = useState("");
     const [isPending, startTransition] = useTransition();
+    const router = useRouter();
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        startTransition(() => {
-            addComment(postId, user, message);
+        startTransition(async () => {
+            await addComment(postId, user, message);
             setMessage("");
+            router.refresh(); // 🔁 перезагрузить серверные данные
         });
     };
 
     return (
         <form onSubmit={handleSubmit} className="space-y-3">
-      <textarea
-          className="w-full border p-2 rounded"
-          rows={3}
-          placeholder="Оставьте комментарий..."
-          value={message}
-          onChange={(e) => setMessage(e.target.value)}
-          required
-      />
+            <textarea
+                className="w-full border p-2 rounded"
+                rows={3}
+                placeholder="Оставьте комментарий..."
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+                required
+            />
             <button
                 type="submit"
                 disabled={isPending || !message}

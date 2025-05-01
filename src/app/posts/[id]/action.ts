@@ -1,8 +1,11 @@
 "use server";
 
-import { comments } from "@/lib/data";
+import { readComments, writeComments } from "@/lib/comments";
 
 export async function addComment(postId: string, user: string, message: string) {
-    if (!comments[postId]) comments[postId] = [];
-    comments[postId].push({ user, message });
+    const allComments = await readComments();
+    if (!allComments[postId]) allComments[postId] = [];
+    allComments[postId].push({ user, message });
+    await writeComments(allComments);
 }
+
